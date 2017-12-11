@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Sign up for Sprout</title>
+
+    <link rel="stylesheet" type="text/css" th:href="@{../bootstrap/css/bootstrap.min.css}"
+          href="../bootstrap/css/bootstrap.min.css"/>
+    <script src="https://cdn.auth0.com/js/lock/10.24.1/lock.min.js"></script>
+
+    <script src="https://cdn.auth0.com/js/auth0/8.10.1/auth0.min.js"></script>
+    <script src="http://code.jquery.com/jquery.js"></script>
+</head>
+
+<body>
+    <h1>Sign up for Sprout money!</h1>
+
+    <button id="btn-login" class="btn btn-primary">Log in</button>
+
+<div id="login-container"></div>
+</body>
+
+<button class="signin-google">Sign in with Google (redirect)</button><br/>
+<button class="signin-google-popup">Sign in with Google (popup)</button><br/>
+<br/><p>--- or ---</p>
+<label>Email</label><input type="text" id="email"/><br/>
+<label>Password</label><input type="password" id="password"/><br/>
+<button class="signin-db">Sign in with Email/Password</button>
+
+
+<script>
+    var webAuth = new auth0.WebAuth({
+        domain:         'sprout-money.auth0.com',
+        clientID:       'AmS64685fjJMgJPd3MHced6goshysyaw',
+        redirectUri:    'https://YOUR_APP/callback'
+    });
+    // sign-in with social provider with plain redirect
+    $('.signin-google').on('click', function() {
+        webAuth.authorize({
+            connection: 'google-oauth2' // use connection identifier
+        });
+    });
+    // sign-in with social provider using a popup (window.open)
+    $('.signin-google-popup').on('click', function() {
+        webAuth.popup.authorize({
+            connection: 'google-oauth2'
+        });
+    });
+
+    $('.signin-db').on('click', function() {
+        webAuth.redirect.loginWithCredentials({
+            connection: 'Username-Password-Authentication',
+            username: 'testuser',
+            password: 'testpass',
+            scope: 'openid'
+        });
+    });
+    // Parse the authentication result
+    webAuth.parseHash((err, authResult) => {
+        if (authResult) {
+            // Save the tokens from the authResult in local storage or a cookie
+            localStorage.setItem('access_token', authResult.accessToken);
+            localStorage.setItem('id_token', authResult.idToken);
+        } else if (err) {
+            // Handle errors
+            console.log(err);
+        }
+    });
+</script>
+</html>
