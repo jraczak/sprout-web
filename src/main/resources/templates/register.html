@@ -4,67 +4,87 @@
     <meta charset="UTF-8"/>
     <title>Sign up for Sprout</title>
 
-    <link rel="stylesheet" type="text/css" th:href="@{../bootstrap/css/bootstrap.min.css}"
-          href="../bootstrap/css/bootstrap.min.css"/>
-    <script src="https://cdn.auth0.com/js/lock/10.24.1/lock.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" href="css/bootstrap.min.css"  />
 
-    <script src="https://cdn.auth0.com/js/auth0/8.10.1/auth0.min.js"></script>
-    <script src="http://code.jquery.com/jquery.js"></script>
+    <script type="text/javascript" th:src="@{/js/jquery-3.2.1.min.js}"></script>
+
 </head>
 
 <body>
-    <h1>Sign up for Sprout money!</h1>
 
-    <button id="btn-login" class="btn btn-primary">Log in</button>
+<div class="middle-box text-center loginscreen animated fadeInDown">
+    <div>
 
-<div id="login-container"></div>
+        <h4>New User Registration</h4>
+
+        <form autocomplete="off" action="#" th:action="@{/register}"
+              th:object="${user}" method="post" class="m-t" role="form"
+              data-toggle="validator">
+
+            <div th:if="${confirmationMessage}" class="alert alert-success"
+                 role="alert" th:text="${confirmationMessage}"></div>
+
+            <div th:if="${errorMessage}"
+                 class="alert alert-danger" role="alert"
+                 th:text="${errorMessage}"></div>
+
+
+            <div th:if="${#fields.hasErrors('firstName')}"
+                 th:errors="*{firstName}"
+                 class="validation-message alert alert-danger" role="alert"></div>
+
+            <div th:if="${#fields.hasErrors('lastName')}"
+                 th:errors="*{lastName}"
+                 class="validation-message alert alert-danger" role="alert"></div>
+
+            <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+                 class="validation-message alert alert-danger" role="alert"></div>
+
+            <div class="form-group input-group has-feedback">
+                <label th:if="${#fields.hasErrors('firstName')}"
+                       th:errors="*{firstName}" class="validation-message"></label>
+                <span class="input-group-addon">
+            <span class="glyphicon glyphicon-user"></span>
+          </span>
+
+                <input type="text" th:field="*{firstName}"
+                       placeholder="First Name" class="form-control" required="required" />
+                <span class="glyphicon form-control-feedback"
+                      aria-hidden="true"></span>
+            </div>
+
+            <div class="form-group input-group has-feedback">
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-user"></span>
+          </span>
+                <input type="text" th:field="*{lastName}"
+                       placeholder="Last Name" class="form-control" required="required" />
+                <span class="glyphicon form-control-feedback"
+                      aria-hidden="true"></span>
+            </div>
+
+            <div class="form-group input-group has-feedback">
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-envelope"></span>
+          </span>
+                <input type="email" th:field="*{email}"
+                       placeholder="Email Address" class="form-control"
+                       data-error="This email address is invalid" required="required" />
+                <span class="glyphicon form-control-feedback"
+                      aria-hidden="true"></span>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary block full-width m-b">Register</button>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- Bootstrap Validator plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.9/validator.min.js"></script>
+
 </body>
-
-<button class="signin-google">Sign in with Google (redirect)</button><br/>
-<button class="signin-google-popup">Sign in with Google (popup)</button><br/>
-<br/><p>--- or ---</p>
-<label>Email</label><input type="text" id="email"/><br/>
-<label>Password</label><input type="password" id="password"/><br/>
-<button class="signin-db">Sign in with Email/Password</button>
-
-
-<script>
-    var webAuth = new auth0.WebAuth({
-        domain:         'sprout-money.auth0.com',
-        clientID:       'AmS64685fjJMgJPd3MHced6goshysyaw',
-        redirectUri:    'https://YOUR_APP/callback'
-    });
-    // sign-in with social provider with plain redirect
-    $('.signin-google').on('click', function() {
-        webAuth.authorize({
-            connection: 'google-oauth2' // use connection identifier
-        });
-    });
-    // sign-in with social provider using a popup (window.open)
-    $('.signin-google-popup').on('click', function() {
-        webAuth.popup.authorize({
-            connection: 'google-oauth2'
-        });
-    });
-
-    $('.signin-db').on('click', function() {
-        webAuth.redirect.loginWithCredentials({
-            connection: 'Username-Password-Authentication',
-            username: 'testuser',
-            password: 'testpass',
-            scope: 'openid'
-        });
-    });
-    // Parse the authentication result
-    webAuth.parseHash((err, authResult) => {
-        if (authResult) {
-            // Save the tokens from the authResult in local storage or a cookie
-            localStorage.setItem('access_token', authResult.accessToken);
-            localStorage.setItem('id_token', authResult.idToken);
-        } else if (err) {
-            // Handle errors
-            console.log(err);
-        }
-    });
-</script>
 </html>

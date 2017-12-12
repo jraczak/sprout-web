@@ -9,8 +9,5 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class ApplicationController {
 
-    @RequestMapping(value = "/register", method = RequestMethod.GET)
-    public String register() {
-        return "register";
-    }
+
 }

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Confirm your account</title>
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" href="css/bootstrap.min.css"  />
+    <script type="text/javascript" th:src="@{/js/jquery-3.2.1.min.js}"></script>
+
+</head>
+<body>
+
+<div class="middle-box text-center loginscreen animated fadeInDown">
+    <div>
+
+        <hr />
+        <h4>Set Your Password</h4>
+
+        <div th:if="${successMessage}" class="alert alert-success"
+             role="alert" th:text="${successMessage}"></div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger"
+             role="alert" th:text="${errorMessage}"></div>
+
+        <div th:if="${invalidToken}" class="alert alert-danger"
+             role="alert" th:text="${invalidToken}"></div>
+
+        <form th:if="!${invalidToken}" class="m-t" id="passwordForm" role="form" action="#"
+              th:object="${setPassword}" th:action="@{/confirm}" method="post">
+
+            <input type="hidden" name="token" th:value="${confirmationToken}"  />
+
+            <div class="form-group input-group">
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-lock"></span>
+          </span>
+                <input name="password" type="password" id="password"
+                       placeholder="Password" class="form-control" required="required" />
+                <span class="glyphicon"
+                      aria-hidden="true"></span>
+            </div>
+
+            <div class="form-group input-group has-feedback">
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-lock"></span>
+          </span>
+                <input type="password" class="form-control" id="signup-password-confirm" placeholder="Confirm Password" name="ConfirmPassword" data-fv-notempty="true"
+                       data-fv-notempty-message="Please confirm password"
+                       data-fv-identical="true"
+                       data-fv-identical-field="password"
+                       data-fv-identical-message="Both passwords must be identical" />
+
+                <div class="help-block with-errors"></div>
+            </div>
+
+
+
+            <button type="submit"
+                    class="btn btn-primary block full-width m-b">Save
+            </button>
+
+        </form>
+
+
+    </div>
+</div>
+
+</body>
+
+<!-- Bootstrap Validator plugin -->
+<script
+        src="//cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.9/validator.min.js"></script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+
+<script th:src="@{js/fv.min.js}"></script>
+</html>
