@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Registration Successful</title>
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" href="css/bootstrap.min.css"  />
+    <script type="text/javascript" th:src="@{/js/jquery-3.2.1.min.js}"></script>
+</head>
+<body>
+
+<div th:if="${successMessage}" class="alert alert-success"
+     role="alert" th:text="${successMessage}"></div>
+
+<h1>Success page</h1>
+</body>
+</html>

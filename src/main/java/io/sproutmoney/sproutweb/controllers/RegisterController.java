@@ -45,6 +45,12 @@ public class RegisterController {
         this.emailService = emailService;
     }
 
+    @RequestMapping(value = "/register_success", method = RequestMethod.GET)
+    public ModelAndView showRegistrationSuccessPage(ModelAndView modelAndView) {
+        modelAndView.setViewName("register_success");
+        return modelAndView;
+    }
+
     // Return the registration form template
     @RequestMapping(value = "/register", method = RequestMethod.GET)
     public ModelAndView showRegistrationPage(ModelAndView modelAndView, User user) {
@@ -55,8 +61,11 @@ public class RegisterController {
 
     // Process registration form input
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ModelAndView processRegistrationForm(ModelAndView modelAndView, @Valid User user,
-                                                BindingResult bindingResult, HttpServletRequest servletRequest) {
+    public ModelAndView processRegistrationForm(ModelAndView modelAndView,
+                                                @Valid User user,
+                                                BindingResult bindingResult,
+                                                HttpServletRequest servletRequest,
+                                                RedirectAttributes redirectAttributes) {
 
         logger.debug("Trying to process registration form");
 
@@ -68,13 +77,13 @@ public class RegisterController {
         if (userExists != null) {
             modelAndView.addObject("alreadyRegisteredMessage", "Looks like there's already a " +
                     "user registered with that email address.");
-            modelAndView.setViewName("register");
+            modelAndView.setViewName("register"); // Set the template for the redirect
             bindingResult.reject("email");
             logger.debug("Found existing user with email address");
         }
 
         if (bindingResult.hasErrors()) {
-            modelAndView.setViewName("register");
+            modelAndView.setViewName("register"); // Set the template for the redirect
         } else {
             //  This is a new user so create them and send a confirmation email
 
@@ -97,6 +106,9 @@ public class RegisterController {
 
             emailService.sendEmail(registrationEmail);
 
+            modelAndView.setViewName("redirect:register_success");
+            redirectAttributes.addFlashAttribute("successMessage", "Account successfully created! " +
+                            "Check your email for your confirmation.");
             modelAndView.addObject("confirmationMessage", "A confirmation email has been sent to " +
                     user.getEmail() + ". Please click the confirmation link to activate your account.");
         }
