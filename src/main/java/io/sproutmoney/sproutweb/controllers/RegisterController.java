@@ -93,8 +93,10 @@ public class RegisterController {
             // Generate random 36-character string token for the confirmation link
             user.setConfirmationToken(UUID.randomUUID().toString());
 
+            // Save the user to the database
             userService.saveUser(user);
 
+            // Prepare and send the confirmation email
             String appUrl = servletRequest.getScheme() + "://" + servletRequest.getServerName();
 
             SimpleMailMessage registrationEmail = new SimpleMailMessage();
@@ -104,6 +106,7 @@ public class RegisterController {
             registrationEmail.setFrom("justin@sproutmoney.io");
             registrationEmail.setReplyTo("justin@sproutmoney.io");
 
+            logger.debug("Sending account confirmation email to " + user.getEmail());
             emailService.sendEmail(registrationEmail);
 
             modelAndView.setViewName("redirect:register_success");
@@ -163,6 +166,7 @@ public class RegisterController {
             userService.saveUser(user);
 
             modelAndView.addObject("successMessage", "Your password has been set!");
+            System.out.println("Passwords match: " + bCryptPasswordEncoder.matches(requestParams.get("password").toString(), user.getPassword()));
             return modelAndView;
         }
     }

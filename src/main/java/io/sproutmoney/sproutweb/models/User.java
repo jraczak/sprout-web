@@ -22,7 +22,8 @@ public class User {
     private String email;
 
     @Column(name = "password")
-    @Transient
+    // Use this instead of the javax version, which will persist but not send out in serialization
+    @org.springframework.data.annotation.Transient
     private String password;
 
     @Column(name = "first_name")
