@@ -2,6 +2,7 @@ package io.sproutmoney.sproutweb.config;
 
 //  Created by Justin on 12/11/17
 
+import io.sproutmoney.sproutweb.auth.LoginAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import javax.annotation.Resource;
 
@@ -25,6 +27,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Resource(name = "userService")
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private LoginAuthenticationSuccessHandler successHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -44,7 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 //.antMatchers("/**").hasRole("USER").and()
                 //.antMatchers("/test").hasRole("USER")
                 .antMatchers("/**").permitAll()
-                .and().formLogin().loginPage("/login").usernameParameter("email").defaultSuccessUrl("/test");
+                .and().formLogin().loginPage("/login").usernameParameter("email").successHandler(successHandler);
         http.authorizeRequests()
                 .antMatchers("/resources/**").permitAll()
                 .and().logout().permitAll();
