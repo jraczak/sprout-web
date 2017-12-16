@@ -26,7 +26,7 @@ public class BeanConfig {
     @Autowired
     Environment environment;
 
-    //TODO: Figure out how to get this reading from local variables
+    //TODO: Figure out how to get this reading from local environment variables
     @Value("${spring.datasource.url}")
     String databaseUrl;
 

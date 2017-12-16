@@ -12,6 +12,12 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class ApplicationController {
 
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public ModelAndView showLogin(ModelAndView modelAndView) {
+        modelAndView.setViewName("login");
+        return modelAndView;
+    }
+
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public ModelAndView showTestPage(ModelAndView modelAndView) {
 

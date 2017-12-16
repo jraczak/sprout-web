@@ -44,7 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 //.antMatchers("/**").hasRole("USER").and()
                 //.antMatchers("/test").hasRole("USER")
                 .antMatchers("/**").permitAll()
-                .and().formLogin().usernameParameter("email").defaultSuccessUrl("/register_success");
+                .and().formLogin().loginPage("/login").usernameParameter("email").defaultSuccessUrl("/test");
         http.authorizeRequests()
                 .antMatchers("/resources/**").permitAll()
                 .and().logout().permitAll();
