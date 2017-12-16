@@ -26,6 +26,7 @@ public class BeanConfig {
     @Autowired
     Environment environment;
 
+    //TODO: Figure out how to get this reading from local variables
     @Value("${SPRING_DATASOURCE_URL}")
     String databaseUrl;
 
@@ -38,6 +39,8 @@ public class BeanConfig {
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        logger.info(System.getenv("SPRING_PROFILES_ACTIVE"));
+        logger.info(System.getenv("SPRING_DATASOURCE_URL"));
         sessionFactory.setDataSource(dataSource());
         sessionFactory.setPackagesToScan(new String[] {"io.sproutmoney.sproutweb.models"});
         sessionFactory.setHibernateProperties(hibernateProperties());
