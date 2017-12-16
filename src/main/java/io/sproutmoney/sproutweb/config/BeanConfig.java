@@ -2,7 +2,10 @@ package io.sproutmoney.sproutweb.config;
 
 //  Created by Justin on 12/14/17
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,8 +21,19 @@ import java.util.Properties;
 @ComponentScan(basePackages = "io.sproutmoney.sproutweb")
 public class BeanConfig {
 
+    Logger logger = LoggerFactory.getLogger(BeanConfig.class.getSimpleName());
+
     @Autowired
     Environment environment;
+
+    @Value("${SPRING_DATASOURCE_URL}")
+    String databaseUrl;
+
+    @Value("${SPRING_DATASOURCE_USERNAME}")
+    String databaseUsername;
+
+    @Value("${SPRING_DATASOURCE_PASSWORD}")
+    String databasePassword;
 
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
@@ -34,9 +48,10 @@ public class BeanConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/sprout-dev-db");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("");
+        logger.info("Setting database URL as " + databaseUrl);
+        dataSource.setUrl(databaseUrl);
+        dataSource.setUsername(databaseUsername);
+        dataSource.setPassword(databasePassword);
         return dataSource;
     }
 
