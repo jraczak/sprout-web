@@ -27,20 +27,18 @@ public class BeanConfig {
     Environment environment;
 
     //TODO: Figure out how to get this reading from local variables
-    @Value("${SPRING_DATASOURCE_URL}")
+    @Value("${spring.datasource.url}")
     String databaseUrl;
 
-    @Value("${SPRING_DATASOURCE_USERNAME}")
+    @Value("${spring.datasource.username}")
     String databaseUsername;
 
-    @Value("${SPRING_DATASOURCE_PASSWORD}")
+    @Value("${spring.datasource.password}")
     String databasePassword;
 
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        logger.info(System.getenv("SPRING_PROFILES_ACTIVE"));
-        logger.info(System.getenv("SPRING_DATASOURCE_URL"));
         sessionFactory.setDataSource(dataSource());
         sessionFactory.setPackagesToScan(new String[] {"io.sproutmoney.sproutweb.models"});
         sessionFactory.setHibernateProperties(hibernateProperties());
@@ -51,7 +49,7 @@ public class BeanConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        logger.info("Setting database URL as " + databaseUrl);
+        logger.info("Setting database URL as " + databaseUrl + " with username " + databaseUsername);
         dataSource.setUrl(databaseUrl);
         dataSource.setUsername(databaseUsername);
         dataSource.setPassword(databasePassword);
