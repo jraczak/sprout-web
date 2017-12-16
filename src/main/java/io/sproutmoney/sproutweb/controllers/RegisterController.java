@@ -163,7 +163,7 @@ public class RegisterController {
             user.setEnabled(true);
 
             // Set to redirect to login
-            modelAndView.setViewName("/login");
+            modelAndView.setViewName("login");
 
             // Save the user
             userService.saveUser(user);
