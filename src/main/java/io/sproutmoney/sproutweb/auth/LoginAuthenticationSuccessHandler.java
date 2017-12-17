@@ -22,7 +22,7 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                         Authentication authentication) throws IOException, ServletException {
         try {
-            redirectStrategy.sendRedirect(httpServletRequest, httpServletResponse, "/test");
+            redirectStrategy.sendRedirect(httpServletRequest, httpServletResponse, "/dashboard");
         } catch (IOException exception) {
             exception.printStackTrace();
         }
