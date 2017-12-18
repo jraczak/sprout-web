@@ -11,31 +11,27 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 @Service
-public class AccountService implements AccountRepository {
+public class AccountService {
 
     private AccountRepository accountRepository;
 
     @Autowired
     public AccountService(AccountRepository repository) {
-        this.accountRepository = accountRepository;
+        this.accountRepository = repository;
     }
 
-    @Override
     public Account findById(int id) {
         return accountRepository.findById(id);
     }
 
-    @Override
     public Account findByPlaidAccountId(String plaidAccountId) {
         return accountRepository.findByPlaidAccountId(plaidAccountId);
     }
 
-    @Override
     public Iterable<Account> findAll() {
         return accountRepository.findAll();
     }
 
-    @Override
     public Set<Account> findAllByUser(User user) {
         return accountRepository.findAllByUser(user);
     }

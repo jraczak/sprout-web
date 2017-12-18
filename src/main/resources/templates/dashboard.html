@@ -57,10 +57,12 @@
                 });
 
                 alert("User successfully selected an institution!");
+                alert(metadata['accounts']);
                 $.post('/get_plaid_access_token', {
                     publicToken: public_token,
                     institutionName: metadata['institution']['name'],
-                    institutionId: metadata['institution']['institution_id']
+                    institutionId: metadata['institution']['institution_id'],
+                    accounts: JSON.stringify(metadata['accounts'])
 
                 });
             },

@@ -2,6 +2,7 @@ package io.sproutmoney.sproutweb.controllers;
 
 //  Created by Justin on 12/16/17
 
+import com.google.gson.*;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
@@ -13,6 +14,7 @@ import io.sproutmoney.sproutweb.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JsonSimpleJsonParser;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +26,7 @@ import retrofit2.Response;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Set;
 
 @Controller
 public class PlaidController {
@@ -32,6 +35,8 @@ public class PlaidController {
 
     PlaidClient plaidClient;
 
+    Gson gson;
+
     @Autowired
     PlaidItemService plaidItemService;
 
@@ -39,11 +44,27 @@ public class PlaidController {
     UserService userService;
 
     @RequestMapping(value = "/get_plaid_access_token", method = RequestMethod.POST)
-    public ResponseEntity<?> getPlaidAccessToken(String publicToken, String institutionName, String institutionId) {
+    public ResponseEntity<?> getPlaidAccessToken(String publicToken, String institutionName, String institutionId,
+                                                 String accounts) {
+
+        // Convert the account metadata to JSON and parse
+        JsonArray jsonArray = new JsonParser().parse(accounts).getAsJsonArray();
+        System.out.println(jsonArray);
+        for (JsonElement object : jsonArray) {
+            System.out.println(object.getAsJsonObject().get("name"));
+        }
+
+        //JsonArray jsonArray = new JsonArray();
+        //jsonArray.add(accounts);
+        //System.out.println("jsonArray is " + jsonArray);
+        //for (JsonElement object : jsonArray) {
+        //    System.out.println(object);
+        //}
 
         logger.debug("Received public token " + publicToken + " from request");
         logger.debug("Attempting to create new item for "+ institutionName);
         System.out.println("Trying to exchange token for public token " + publicToken);
+        System.out.println("Accounts metadata value is " + accounts);
 
         PlaidItem plaidItem = new PlaidItem();
         User user = userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
