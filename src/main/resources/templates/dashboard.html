@@ -59,8 +59,8 @@
                 alert("User successfully selected an institution!");
                 $.post('/get_plaid_access_token', {
                     publicToken: public_token,
-                    insitutionName: metadata.institution.name,
-                    institutionId: metadata.institution.id
+                    institutionName: metadata['institution']['name'],
+                    institutionId: metadata['institution']['id']
 
                 });
             },

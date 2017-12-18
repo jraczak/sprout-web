@@ -21,7 +21,7 @@ import java.util.Properties;
 @ComponentScan(basePackages = "io.sproutmoney.sproutweb")
 public class BeanConfig {
 
-    Logger logger = LoggerFactory.getLogger(BeanConfig.class.getSimpleName());
+    private Logger logger = LoggerFactory.getLogger(BeanConfig.class.getSimpleName());
 
     @Autowired
     Environment environment;
