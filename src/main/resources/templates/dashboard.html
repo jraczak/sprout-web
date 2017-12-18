@@ -60,7 +60,7 @@
                 $.post('/get_plaid_access_token', {
                     publicToken: public_token,
                     institutionName: metadata['institution']['name'],
-                    institutionId: metadata['institution']['id']
+                    institutionId: metadata['institution']['institution_id']
 
                 });
             },
