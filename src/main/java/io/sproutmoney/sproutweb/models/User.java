@@ -46,6 +46,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<PlaidItem> plaidItems;
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Account> accounts;
+
     public int getId() {
         return id;
     }
@@ -113,5 +116,17 @@ public class User {
     public Set<PlaidItem> addPlaidItem(PlaidItem plaidItem) {
         this.plaidItems.add(plaidItem);
         return this.getPlaidItems();
+    }
+
+    public Set<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Set<Account> accounts) {
+        this.accounts = accounts;
+    }
+
+    public void addAccount(Account account) {
+        this.accounts.add(account);
     }
 }
