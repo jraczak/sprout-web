@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -39,6 +40,11 @@ public class User {
 
     @Column(name = "confirmation_token")
     private String confirmationToken;
+
+    // Plaid Attributes
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<PlaidItem> plaidItems;
 
     public int getId() {
         return id;
@@ -94,5 +100,18 @@ public class User {
 
     public void setConfirmationToken(String confirmationToken) {
         this.confirmationToken = confirmationToken;
+    }
+
+    public Set<PlaidItem> getPlaidItems() {
+        return plaidItems;
+    }
+
+    public void setPlaidItems(Set<PlaidItem> plaidItems) {
+        this.plaidItems = plaidItems;
+    }
+
+    public Set<PlaidItem> addPlaidItem(PlaidItem plaidItem) {
+        this.plaidItems.add(plaidItem);
+        return this.getPlaidItems();
     }
 }

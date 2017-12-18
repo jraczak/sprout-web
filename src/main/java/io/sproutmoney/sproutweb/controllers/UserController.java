@@ -27,7 +27,7 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    Authentication authentication;
+    private Authentication authentication;
 
     @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
     public ModelAndView showUserDashboard(ModelAndView modelAndView) {

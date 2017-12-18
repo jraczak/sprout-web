@@ -53,6 +53,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/resources/**").permitAll()
                 .and().logout().permitAll();
+        http.authorizeRequests().antMatchers("/get_plaid_access_token").permitAll();
+
         super.configure(http);
     }
 

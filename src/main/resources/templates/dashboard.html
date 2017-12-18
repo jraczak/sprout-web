@@ -4,6 +4,8 @@
     <meta charset="UTF-8"/>
     <title>Your Dashboard</title>
 
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" href="../static/css/bootstrap.min.css"  />
     <script type="text/javascript" th:src="@{/js/jquery-3.2.1.min.js}"></script>
 
@@ -11,6 +13,106 @@
 <body>
 
 <h1>Welcome, <span th:text="${user.getFirstName()}"></span>!</h1>
+
+<button id="link-button">Link New Account</button>
+
+<button id="test-button">Test Me</button>
+
+<h3>You have linked the following institutions:</h3>
+<table class="table table-bordered">
+    <tr th:each="account : ${user.getPlaidItems()}">
+        <td th:text="${account.getInsitutionName()}"></td>
+    </tr>
+</table>
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script> -->
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+
+<!-- TODO: Replace keys with env vars -->
+<script type="text/javascript">
+    (function($) {
+        var handler = Plaid.create({
+            clientName: 'Sprout Web Client',
+            apiVersion: 'v2',
+            env: 'development',
+            // Replace with your public_key from the Dashboard
+            key: 'f2ed0e179c86b5a0c0c16dc0bd4dc5',
+            product: ['transactions'],
+            // Optional, use webhooks to get transaction and error updates
+            webhook: 'https://requestb.in',
+            onLoad: function() {
+                // Optional, called when Link loads
+            },
+            onSuccess: function(public_token, metadata) {
+                // Send the public_token to your app server.
+                // The metadata object contains info about the institution the
+                // user selected and the account ID, if the Account Select view
+                // is enabled.
+                var secToken = $('meta[name="_csrf"]').attr('content');
+                var header = "X-CSRF-TOKEN";
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-Token': secToken
+                    }
+                });
+
+                alert("User successfully selected an institution!");
+                $.post('/get_plaid_access_token', {
+                    publicToken: public_token,
+                    insitutionName: metadata.institution.name,
+                    institutionId: metadata.institution.id
+
+                });
+            },
+            onExit: function(err, metadata) {
+                // The user exited the Link flow.
+                if (err != null) {
+                    // The user encountered a Plaid API error prior to exiting.
+                }
+                // metadata contains information about the institution
+                // that the user selected and the most recent API request IDs.
+                // Storing this information can be helpful for support.
+            },
+            onEvent: function(eventName, metadata) {
+                // Optionally capture Link flow events, streamed through
+                // this callback as your users connect an Item to Plaid.
+                // For example:
+                // eventName = "TRANSITION_VIEW"
+                // metadata  = {
+                //   link_session_id: "123-abc",
+                //   mfa_type:        "questions",
+                //   timestamp:       "2017-09-14T14:42:19.350Z",
+                //   view_name:       "MFA",
+                // }
+            }
+        });
+        
+        var buttonTest = function () {
+            var secToken = $('meta[name="_csrf"]').attr('content');
+            var header = "X-CSRF-TOKEN";
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-Token': secToken
+                }
+            });
+            alert("Testing the token flow");
+            $.post('/get_plaid_access_token', {
+                publicToken: 'public-development-59aa9de7-bb22-4d1a-94b8-a6759a2dd0b8',
+                institutionName: 'Chase Bank',
+                institutionId: '3'
+            })
+        };
+
+        $('#link-button').on('click', function(e) {
+            handler.open();
+        });
+
+        $('#test-button').on('click', function() {
+            buttonTest();
+        });
+
+    })(jQuery);
+</script>
 
 </body>
 </html>
