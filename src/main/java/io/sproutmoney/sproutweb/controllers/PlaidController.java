@@ -25,8 +25,6 @@ import retrofit2.Response;
 import java.awt.*;
 import java.io.IOException;
 
-import static com.sun.tools.doclint.Entity.prod;
-
 @Controller
 public class PlaidController {
 
