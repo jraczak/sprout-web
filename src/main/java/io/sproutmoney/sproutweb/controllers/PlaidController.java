@@ -7,8 +7,10 @@ import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import io.sproutmoney.sproutweb.data.PlaidItemRepository;
+import io.sproutmoney.sproutweb.models.Account;
 import io.sproutmoney.sproutweb.models.PlaidItem;
 import io.sproutmoney.sproutweb.models.User;
+import io.sproutmoney.sproutweb.services.AccountService;
 import io.sproutmoney.sproutweb.services.PlaidItemService;
 import io.sproutmoney.sproutweb.services.UserService;
 import org.slf4j.Logger;
@@ -39,20 +41,21 @@ public class PlaidController {
 
     @Autowired
     PlaidItemService plaidItemService;
-
     @Autowired
     UserService userService;
+    @Autowired
+    AccountService accountService;
 
     @RequestMapping(value = "/get_plaid_access_token", method = RequestMethod.POST)
     public ResponseEntity<?> getPlaidAccessToken(String publicToken, String institutionName, String institutionId,
                                                  String accounts) {
 
         // Convert the account metadata to JSON and parse
-        JsonArray jsonArray = new JsonParser().parse(accounts).getAsJsonArray();
-        System.out.println(jsonArray);
-        for (JsonElement object : jsonArray) {
-            System.out.println(object.getAsJsonObject().get("name"));
-        }
+        //JsonArray jsonArray = new JsonParser().parse(accounts).getAsJsonArray();
+        //System.out.println(jsonArray);
+        //for (JsonElement object : jsonArray) {
+        //    System.out.println(object.getAsJsonObject().get("name"));
+        //}
 
         //JsonArray jsonArray = new JsonArray();
         //jsonArray.add(accounts);
@@ -63,7 +66,7 @@ public class PlaidController {
 
         logger.debug("Received public token " + publicToken + " from request");
         logger.debug("Attempting to create new item for "+ institutionName);
-        System.out.println("Trying to exchange token for public token " + publicToken);
+        System.out.println("Trying to exchange public token " + publicToken + " for access token.");
         System.out.println("Accounts metadata value is " + accounts);
 
         PlaidItem plaidItem = new PlaidItem();
@@ -82,7 +85,7 @@ public class PlaidController {
         try {
             response = plaidClient.service().itemPublicTokenExchange(
                     new ItemPublicTokenExchangeRequest(publicToken)).execute();
-            System.out.println("Inside try block.");
+            System.out.println("Inside try block of token exchange.");
             System.out.println("Response is " + response.body());
             logger.debug(response.message());
         } catch (IOException e) {
@@ -102,6 +105,23 @@ public class PlaidController {
              logger.debug("Saving new plaid item to database");
              plaidItemService.savePlaidItem(plaidItem);
              logger.debug("Plaid Item saved to the database as " + plaidItem.getId());
+
+             // Iterate through the account metadata and create new accounts,
+             // save them to user and plaid item
+             System.out.println("Attempting to create accounts from metadata");
+             JsonArray jsonArray = new JsonParser().parse(accounts).getAsJsonArray();
+             System.out.println("Converted metadata string to jsonArray: " + jsonArray);
+             for (JsonElement object : jsonArray) {
+                 JsonObject a = object.getAsJsonObject();
+                 System.out.println("Attempting to create account for " + a.get("name"));
+                 System.out.println("Testing querying type: "+ a.get("type").toString());
+                 Account account = new Account(user, a.get("id").toString(),
+                                                a.get("type").toString(),
+                                                institutionId, a.get("name").toString(),
+                                                plaidItem);
+                 System.out.println("Saving new account for " + a.get("name"));
+                 accountService.saveAccount(account);
+             }
          }
          return ResponseEntity.ok(plaidItem.getInsitutionName());
     }

@@ -39,4 +39,8 @@ public class AccountService {
     public void saveAccount(Account account) {
         accountRepository.save(account);
     }
+
+    public Account findAccountByPlaidAccountId(String plaidAccountId) {
+        return accountRepository.findAccountByPlaidAccountId(plaidAccountId);
+    }
 }

@@ -50,18 +50,25 @@ public class Account {
     @Column(name = "mask")
     private String mask;
 
+    @ManyToOne
+    @JoinColumn(name = "plaid_item_id", nullable = false)
+    private PlaidItem plaidItem;
+
+    public Account() {
+    }
+
+    //TODO: Need to figure out how to fetch account subtype
+    //TODO: Need to figure out how to fetch official name
+    //TODO: Need to fetch and sync mask
     public Account(User user, String plaidAccountId,
-                   String accountType, String accountSubtype,
-                   String institutionId, String name,
-                   String officialName, String mask) {
+                   String accountType, String institutionId,
+                   String name, PlaidItem plaidItem) {
         this.user = user;
         this.plaidAccountId = plaidAccountId;
         this.accountType = accountType;
-        this.accountSubtype = accountSubtype;
         this.institutionId = institutionId;
         this.name = name;
-        this.officialName = officialName;
-        this.mask = mask;
+        this.plaidItem = plaidItem;
     }
 
     public int getId() {

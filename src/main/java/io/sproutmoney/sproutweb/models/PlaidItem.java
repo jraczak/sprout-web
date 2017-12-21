@@ -3,6 +3,7 @@ package io.sproutmoney.sproutweb.models;
 //  Created by Justin on 12/16/17
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "plaid_items")
@@ -29,6 +30,9 @@ public class PlaidItem {
 
     @Column(name = "institution_id")
     private String institutionId;
+
+    @OneToMany(mappedBy = "plaidItem", cascade = CascadeType.ALL)
+    private Set<Account> accounts;
 
     public long getId() {
         return id;
@@ -76,5 +80,17 @@ public class PlaidItem {
 
     public void setInstitutionId(String institutionId) {
         this.institutionId = institutionId;
+    }
+
+    public Set<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Set<Account> accounts) {
+        this.accounts = accounts;
+    }
+
+    public void addAccount(Account account) {
+        this.accounts.add(account);
     }
 }
