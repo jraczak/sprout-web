@@ -4,7 +4,9 @@ package io.sproutmoney.sproutweb.controllers;
 
 
 import com.plaid.client.PlaidClient;
+import com.plaid.client.request.AccountsBalanceGetRequest;
 import com.plaid.client.request.AccountsGetRequest;
+import com.plaid.client.response.AccountsBalanceGetResponse;
 import com.plaid.client.response.AccountsGetResponse;
 import io.sproutmoney.sproutweb.models.Account;
 import io.sproutmoney.sproutweb.models.PlaidItem;
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 public class UserController {
@@ -56,43 +59,89 @@ public class UserController {
 
         logger.info("Current user " + user.getEmail() + " has " + user.getAccounts().size() + " accounts.");
 
-        updateAllAccounts("access-development-07809e34-d84f-4d90-a0fe-4cf9972edd4a");
-        PlaidItem item = plaidItemService.findByAccessToken("access-development-07809e34-d84f-4d90-a0fe-4cf9972edd4a");
-        logger.info("Testing item search, found: " + item);
+        //TODO: Update this to iterate through user items/accounts instead of one item
+        updateAllAccounts(user);
+
+        updateAccountBalances(user);
 
         return modelAndView;
     }
 
-    public void updateAllAccounts(String plaidAccessToken) {
+    public void updateAllAccounts(User user) {
+        //TODO: Abstract plaid client into utility somewhere so we don't have to initialize all the time
+        //TODO: Change this back to development environment
         PlaidClient plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret("573b50930259902a3980f121", "b96e031816833914cce7967a2bfce7")
-                .publicKey("f2ed0e179c86b5a0c0c16dc0bd4dc5").developmentBaseUrl().build();
+                .publicKey("f2ed0e179c86b5a0c0c16dc0bd4dc5").sandboxBaseUrl().build();
         logger.debug("PlaidClient is " + plaidClient);
         Response<AccountsGetResponse> response = null;
-        try {
-            response = plaidClient.service().accountsGet(
-                    new AccountsGetRequest(plaidAccessToken))
-                    .execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.info("Account service is " + accountService);
 
-        logger.info("Account: " + accountService.findByPlaidAccountId("E9knBzvQ8PcLYzPrqaekh17EqpZ53rtwYwzBQ"));
-        if (response != null) {
-            List<com.plaid.client.response.Account> accounts = response.body().getAccounts();
-            for (com.plaid.client.response.Account account : accounts) {
-                Account sproutAccount = accountService.findByPlaidAccountId(account.getAccountId());
-                if (sproutAccount != null) {
-                    logger.info(account.getSubtype());
-                    logger.info(account.getOfficialName());
-                    sproutAccount.setAccountSubtype(account.getSubtype());
-                    sproutAccount.setMask(account.getMask());
-                    sproutAccount.setOfficialName(account.getOfficialName());
-                    accountService.saveAccount(sproutAccount);
-                } else logger.error("No account found with plaid id " + account.getAccountId());
+        Set<PlaidItem> userItems = user.getPlaidItems();
+        for (PlaidItem item : userItems) {
+
+            try {
+                logger.info("Attempting to fetch accounts for item with access token " + item.getAccessToken());
+                response = plaidClient.service().accountsGet(
+                        new AccountsGetRequest(item.getAccessToken()))
+                        .execute();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } else logger.error("There was no client response");
+            logger.info("Account service is " + accountService);
+
+            if (response != null) {
+                List<com.plaid.client.response.Account> accounts = response.body().getAccounts();
+                for (com.plaid.client.response.Account account : accounts) {
+                    Account sproutAccount = accountService.findByPlaidAccountId(account.getAccountId());
+                    if (sproutAccount != null) {
+                        logger.info(account.getSubtype());
+                        logger.info(account.getOfficialName());
+                        sproutAccount.setAccountSubtype(account.getSubtype());
+                        sproutAccount.setMask(account.getMask());
+                        sproutAccount.setOfficialName(account.getOfficialName());
+                        accountService.saveAccount(sproutAccount);
+                    } else logger.error("No account found with plaid id " + account.getAccountId());
+                }
+            } else logger.error("There was no client response");
+        }
+    }
+
+    public void updateAccountBalances(User user) {
+        Set<PlaidItem> items = user.getPlaidItems();
+        if (!items.isEmpty()) {
+            PlaidClient plaidClient = PlaidClient.newBuilder()
+                    .clientIdAndSecret("573b50930259902a3980f121", "b96e031816833914cce7967a2bfce7")
+                    .publicKey("f2ed0e179c86b5a0c0c16dc0bd4dc5").sandboxBaseUrl().build();
+            logger.debug("PlaidClient is " + plaidClient);
+            for (PlaidItem item : items) {
+                Response<AccountsBalanceGetResponse> response = null;
+                try {
+                    response = plaidClient.service()
+                            .accountsBalanceGet(new AccountsBalanceGetRequest(item.getAccessToken()))
+                            .execute();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (response != null) {
+                    logger.info(response.toString());
+                    List<com.plaid.client.response.Account> accounts = response.body().getAccounts();
+                    for (com.plaid.client.response.Account account : accounts) {
+                        Account sproutAccount = accountService.findByPlaidAccountId(account.getAccountId());
+                        if (sproutAccount != null) {
+                            logger.info("Updating sprout account " + sproutAccount.getId());
+                            if ( sproutAccount.getAccountType().equals("depository")) {
+                                sproutAccount.setAvailableBalance(account.getBalances().getAvailable());
+                            }
+                            sproutAccount.setCurrentBalance(account.getBalances().getCurrent());
+                            if (sproutAccount.getAccountSubtype().equals("credit card")) {
+                                sproutAccount.setAccountLimit(account.getBalances().getLimit());
+                            }
+                            accountService.saveAccount(sproutAccount);
+                        } else logger.error("No account found with plaid id " + account.getAccountId());
+                    }
+                } else logger.error("There was no client response to parse");
+            }
+        }
     }
 
 }

@@ -76,11 +76,11 @@ public class PlaidController {
         Response<ItemPublicTokenExchangeResponse> response = null;
 
         // Exchange the public token for the access token
-        // TODO: Change this to development environment for now
+        // TODO: Change this back to development environment
         logger.debug("Creating Plaid URL and exchanging public token");
         plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret("573b50930259902a3980f121", "b96e031816833914cce7967a2bfce7")
-                .publicKey("f2ed0e179c86b5a0c0c16dc0bd4dc5").developmentBaseUrl().build();
+                .publicKey("f2ed0e179c86b5a0c0c16dc0bd4dc5").sandboxBaseUrl().build();
         logger.debug("Plaid Client is " + plaidClient);
         System.out.println("Plaid client is " + plaidClient);
         try {
