@@ -43,4 +43,8 @@ public class AccountService {
     public Account findAccountByPlaidAccountId(String plaidAccountId) {
         return accountRepository.findAccountByPlaidAccountId(plaidAccountId);
     }
+
+    public Set<Account> findAllByUserOrderByInstitutionNameAsc(User user) {
+        return accountRepository.findAllByUserOrderByInstitutionNameAsc(user);
+    }
 }

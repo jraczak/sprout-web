@@ -13,6 +13,7 @@ import java.util.Set;
 public interface AccountRepository extends CrudRepository<Account, Long> {
 
     Set<Account> findAllByUser(User user);
+    Set<Account> findAllByUserOrderByInstitutionNameAsc(User user);
     Account findByPlaidAccountId(String plaidAccountId);
     Account findAccountByPlaidAccountId(String plaidAccountId);
     Account findById(int id);

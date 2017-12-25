@@ -32,6 +32,9 @@ public class Account {
     @Column(name = "institution_id")
     private String institutionId;
 
+    @Column(name = "institution_name")
+    private String institutionName;
+
     @Column(name = "current_balance")
     private double currentBalance;
 
@@ -69,6 +72,7 @@ public class Account {
         this.institutionId = institutionId;
         this.name = name;
         this.plaidItem = plaidItem;
+        this.institutionName = plaidItem.getInsitutionName();
     }
 
     public int getId() {
@@ -120,7 +124,8 @@ public class Account {
     }
 
     public double getCurrentBalance() {
-        return currentBalance;
+        if (this.accountType.equals("credit")) return currentBalance * -1.0;
+        else return currentBalance;
     }
 
     public void setCurrentBalance(double currentBalance) {
@@ -165,5 +170,21 @@ public class Account {
 
     public void setMask(String mask) {
         this.mask = mask;
+    }
+
+    public PlaidItem getPlaidItem() {
+        return plaidItem;
+    }
+
+    public void setPlaidItem(PlaidItem plaidItem) {
+        this.plaidItem = plaidItem;
+    }
+
+    public String getInstitutionName() {
+        return institutionName;
+    }
+
+    public void setInstitutionName(String insitutionName) {
+        this.institutionName = insitutionName;
     }
 }

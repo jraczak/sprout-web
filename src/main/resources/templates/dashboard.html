@@ -18,11 +18,24 @@
 
 <button id="test-button">Test Me</button>
 
-<h3>You have linked the following institutions:</h3>
+<h3>You have linked the following accounts:</h3>
 <table class="table table-bordered">
-    <tr th:each="account : ${user.getPlaidItems()}">
-        <td th:text="${account.getInsitutionName()}"></td>
+    <thead>
+        <tr>
+            <th>Account</th>
+            <th>Institution</th>
+            <th>Account Type</th>
+            <th>Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr th:each="account : ${accounts}">
+        <td th:text="${account.getName()}"></td>
+        <td th:text="${account.getInstitutionName()}"></td>
+        <td th:text="${account.getAccountSubtype()}"></td>
+        <td>$<span th:text="${account.getCurrentBalance()}"></span></td>
     </tr>
+    </tbody>
 </table>
 
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script> -->

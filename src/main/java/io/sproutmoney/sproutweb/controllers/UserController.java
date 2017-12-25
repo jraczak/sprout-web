@@ -56,6 +56,7 @@ public class UserController {
         logger.info("Current session is user: " + authentication.getName());
         User user = userService.findByEmail(authentication.getName());
         modelAndView.addObject("user", user);
+        modelAndView.addObject("accounts", accountService.findAllByUserOrderByInstitutionNameAsc(user));
 
         logger.info("Current user " + user.getEmail() + " has " + user.getAccounts().size() + " accounts.");
 
@@ -99,6 +100,7 @@ public class UserController {
                         sproutAccount.setAccountSubtype(account.getSubtype());
                         sproutAccount.setMask(account.getMask());
                         sproutAccount.setOfficialName(account.getOfficialName());
+                        sproutAccount.setInstitutionName(sproutAccount.getPlaidItem().getInsitutionName());
                         accountService.saveAccount(sproutAccount);
                     } else logger.error("No account found with plaid id " + account.getAccountId());
                 }
