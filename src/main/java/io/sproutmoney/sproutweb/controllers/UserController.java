@@ -12,6 +12,7 @@ import io.sproutmoney.sproutweb.models.User;
 import io.sproutmoney.sproutweb.services.AccountService;
 import io.sproutmoney.sproutweb.services.PlaidItemService;
 import io.sproutmoney.sproutweb.services.UserService;
+import org.hibernate.type.CharacterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,14 +78,18 @@ public class UserController {
         }
         logger.info("Account service is " + accountService);
 
-        logger.info("Account: " + accountService.findAccountByPlaidAccountId("E9knBzvQ8PcLYzPrqaekh17EqpZ53rtwYwzBQ"));
+        logger.info("Account: " + accountService.findByPlaidAccountId("E9knBzvQ8PcLYzPrqaekh17EqpZ53rtwYwzBQ"));
         if (response != null) {
             List<com.plaid.client.response.Account> accounts = response.body().getAccounts();
             for (com.plaid.client.response.Account account : accounts) {
-                Account sproutAccount = accountService.findAccountByPlaidAccountId(account.getAccountId());
+                Account sproutAccount = accountService.findByPlaidAccountId(account.getAccountId());
                 if (sproutAccount != null) {
+                    logger.info(account.getSubtype());
+                    logger.info(account.getOfficialName());
                     sproutAccount.setAccountSubtype(account.getSubtype());
                     sproutAccount.setMask(account.getMask());
+                    sproutAccount.setOfficialName(account.getOfficialName());
+                    accountService.saveAccount(sproutAccount);
                 } else logger.error("No account found with plaid id " + account.getAccountId());
             }
         } else logger.error("There was no client response");

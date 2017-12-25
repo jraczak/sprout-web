@@ -76,6 +76,7 @@ public class PlaidController {
         Response<ItemPublicTokenExchangeResponse> response = null;
 
         // Exchange the public token for the access token
+        // TODO: Change this to development environment for now
         logger.debug("Creating Plaid URL and exchanging public token");
         plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret("573b50930259902a3980f121", "b96e031816833914cce7967a2bfce7")
@@ -115,9 +116,11 @@ public class PlaidController {
                  JsonObject a = object.getAsJsonObject();
                  System.out.println("Attempting to create account for " + a.get("name"));
                  System.out.println("Testing querying type: "+ a.get("type").toString());
-                 Account account = new Account(user, a.get("id").toString(),
-                                                a.get("type").toString(),
-                                                institutionId, a.get("name").toString(),
+
+                 // Use getAsString not getString to prevent wrapping in quotes when saving
+                 Account account = new Account(user, a.get("id").getAsString(),
+                                                a.get("type").getAsString(),
+                                                institutionId, a.get("name").getAsString(),
                                                 plaidItem);
                  System.out.println("Saving new account for " + a.get("name"));
                  accountService.saveAccount(account);
