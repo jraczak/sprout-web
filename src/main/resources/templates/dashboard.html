@@ -11,33 +11,65 @@
 
 </head>
 <body>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Welcome, <span th:text="${user.getFirstName()}"></span>!</h1>
 
-<h1>Welcome, <span th:text="${user.getFirstName()}"></span>!</h1>
+            <button class="btn btn-primary" id="link-button">Link New Account</button>
 
-<button id="link-button">Link New Account</button>
+            <button id="test-button">Test Me</button>
 
-<button id="test-button">Test Me</button>
+            <h3>Your accounts</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Institution</th>
+                    <th>Account Type</th>
+                    <th>Balance</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="account : ${accounts}">
+                    <td th:text="${account.getName()}"></td>
+                    <td th:text="${account.getInstitutionName()}"></td>
+                    <td th:text="${account.getAccountSubtype()}"></td>
+                    <td>$<span th:text="${account.getCurrentBalance()}"></span></td>
+                </tr>
+                </tbody>
+            </table>
 
-<h3>You have linked the following accounts:</h3>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Account</th>
-            <th>Institution</th>
-            <th>Account Type</th>
-            <th>Balance</th>
-        </tr>
-    </thead>
-    <tbody>
-    <tr th:each="account : ${accounts}">
-        <td th:text="${account.getName()}"></td>
-        <td th:text="${account.getInstitutionName()}"></td>
-        <td th:text="${account.getAccountSubtype()}"></td>
-        <td>$<span th:text="${account.getCurrentBalance()}"></span></td>
-    </tr>
-    </tbody>
-</table>
 
+    </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h3>Your recent transactions</h3>
+            <table class="table table-bordered table">
+                <thead>
+                <tr>
+                    <th>Merchant</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Account</th>
+                    <th>Pending?</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transaction : ${user.getTransactions()}">
+                    <td th:text="${transaction.getMerchantName()}"></td>
+                    <td th:text="${transaction.getDate()}"></td>
+                    <td th:text="${transaction.getAmount()}"></td>
+                    <td th:text="${transaction.getAccount().getInstitutionName()}"></td>
+                    <td th:text="${transaction.isPending()}"></td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script> -->
 <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 
@@ -101,7 +133,7 @@
                 // }
             }
         });
-        
+
         var buttonTest = function () {
             var secToken = $('meta[name="_csrf"]').attr('content');
             var header = "X-CSRF-TOKEN";
@@ -128,6 +160,5 @@
 
     })(jQuery);
 </script>
-
 </body>
 </html>

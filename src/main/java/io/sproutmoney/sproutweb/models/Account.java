@@ -5,6 +5,7 @@ package io.sproutmoney.sproutweb.models;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "accounts")
@@ -15,9 +16,14 @@ public class Account {
     @Column(name = "account_id")
     private int id;
 
+    //TODO: Add timestamps
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Transaction> transactions;
 
     @Column(name = "plaid_account_id")
     @NotEmpty(message = "Plaid account number is required")
@@ -187,4 +193,18 @@ public class Account {
     public void setInstitutionName(String insitutionName) {
         this.institutionName = insitutionName;
     }
+
+    public Set<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(Set<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    public void addTransactions(Set<Transaction> transactions) {
+        this.transactions.addAll(transactions);
+    }
+
+    //TODO: Figure out how to leverage the webhook to update account transactions after initial linking
 }
