@@ -48,12 +48,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 //.antMatchers("/**").hasRole("USER").and()
                 //.antMatchers("/test").hasRole("USER")
-                .antMatchers("/**").permitAll()
-                .and().formLogin().loginPage("/login").usernameParameter("email").successHandler(successHandler);
-        http.authorizeRequests()
-                .antMatchers("/resources/**").permitAll()
+                //.antMatchers("/static/*").permitAll()
+                .antMatchers("/", "/login/**", "/static/**", "/css/**", "/js/**").permitAll()
+                .antMatchers("/get_plaid_access_token").permitAll()
+                //.antMatchers("/**").permitAll()
+                .anyRequest().authenticated()
+                .and().formLogin().loginPage("/login").usernameParameter("email").successHandler(successHandler)
                 .and().logout().permitAll();
-        http.authorizeRequests().antMatchers("/get_plaid_access_token").permitAll();
+        //http.authorizeRequests()
+                //.antMatchers("/resources/**").permitAll();
+                //.and().logout().permitAll();
+        //http.authorizeRequests().antMatchers("/get_plaid_access_token").permitAll();
 
         super.configure(http);
     }
