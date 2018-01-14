@@ -6,6 +6,8 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -139,5 +141,18 @@ public class User {
 
     public void setTransactions(Set<Transaction> transactions) {
         this.transactions = transactions;
+    }
+
+    public double getTotalAssets() {
+        //TODO: Add investment account types
+        String[] assetTypes = {"depository"};
+        double totalBalance = 0;
+
+        for (Account a : this.accounts) {
+            if (Arrays.asList(assetTypes).contains(a.getAccountType())) {
+                totalBalance += a.getCurrentBalance();
+            }
+        }
+        return totalBalance;
     }
 }
