@@ -4,26 +4,27 @@ package io.sproutmoney.sproutweb.controllers;
 
 import com.google.gson.*;
 import com.plaid.client.PlaidClient;
+import com.plaid.client.request.CategoriesGetRequest;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
+import com.plaid.client.response.CategoriesGetResponse;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
-import io.sproutmoney.sproutweb.data.PlaidItemRepository;
 import io.sproutmoney.sproutweb.models.Account;
 import io.sproutmoney.sproutweb.models.PlaidItem;
+import io.sproutmoney.sproutweb.models.TransactionCategory;
 import io.sproutmoney.sproutweb.models.User;
 import io.sproutmoney.sproutweb.services.AccountService;
 import io.sproutmoney.sproutweb.services.PlaidItemService;
+import io.sproutmoney.sproutweb.services.TransactionCategoryService;
 import io.sproutmoney.sproutweb.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.JsonSimpleJsonParser;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import retrofit2.Response;
 
 import java.awt.*;
@@ -35,7 +36,7 @@ public class PlaidController {
 
     private Logger logger = LoggerFactory.getLogger(PlaidController.class.getSimpleName());
 
-    PlaidClient plaidClient;
+    private PlaidClient plaidClient;
 
     Gson gson;
 
@@ -45,6 +46,8 @@ public class PlaidController {
     UserService userService;
     @Autowired
     AccountService accountService;
+    @Autowired
+    TransactionCategoryService transactionCategoryService;
 
     @RequestMapping(value = "/get_plaid_access_token", method = RequestMethod.POST)
     public ResponseEntity<?> getPlaidAccessToken(String publicToken, String institutionName, String institutionId,
@@ -93,7 +96,7 @@ public class PlaidController {
             e.printStackTrace();
         }
 
-         if (response.isSuccessful()) {
+         if (response != null && response.isSuccessful()) {
              accessToken = response.body().getAccessToken();
 
              logger.debug("Creating new plaid item for access token " + accessToken);
@@ -127,5 +130,52 @@ public class PlaidController {
              }
          }
          return ResponseEntity.ok(plaidItem.getInsitutionName());
+    }
+
+    @RequestMapping(value = "sync_plaid_transaction_categories", method = RequestMethod.GET)
+    public ModelAndView syncPlaidTransactionCategories(ModelAndView modelAndView) {
+        if (ingestPlaidTransactionCategories()) {
+            modelAndView.setViewName("category_sync_success");
+        } else modelAndView.setViewName("category_sync_failure");
+        return modelAndView;
+    }
+
+    //TODO Schedule this to run regularly and sync/normalize categories
+    public boolean ingestPlaidTransactionCategories() {
+        //TODO: Update the environment from sandbox
+        plaidClient = PlaidClient.newBuilder()
+                .clientIdAndSecret("573b50930259902a3980f121", "b96e031816833914cce7967a2bfce7")
+                .publicKey("f2ed0e179c86b5a0c0c16dc0bd4dc5").sandboxBaseUrl().build();
+
+        Response<CategoriesGetResponse> categoriesGetResponse = null;
+        try {
+            categoriesGetResponse = plaidClient.service()
+                    .categoriesGet(new CategoriesGetRequest())
+                    .execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (categoriesGetResponse != null && categoriesGetResponse.isSuccessful()) {
+            for (CategoriesGetResponse.Category category : categoriesGetResponse.body().getCategories()) {
+                logger.info(category.getCategoryId() +
+                        " is " +
+                        category.getHierarchy().toString() +
+                        " - " +
+                        category.getHierarchy().size());
+                if (transactionCategoryService.findByPlaidCategoryId(category.getCategoryId()) == null) {
+                    TransactionCategory tc = new TransactionCategory(
+                            category.getGroup(),
+                            category.getCategoryId(),
+                            category.getHierarchy().get(category.getHierarchy().size()-1),
+                            category.getHierarchy(),
+                            category.getHierarchy().size() == 1
+                    );
+                    transactionCategoryService.saveTransactionCategory(tc);
+                } else logger.info("Duplicate transaction category found for " +
+                        category.getHierarchy().get(category.getHierarchy().size()-1));
+
+            }
+            return true;
+        } else return false;
     }
 }

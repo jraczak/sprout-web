@@ -10,14 +10,8 @@ import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.response.AccountsBalanceGetResponse;
 import com.plaid.client.response.AccountsGetResponse;
 import com.plaid.client.response.TransactionsGetResponse;
-import io.sproutmoney.sproutweb.models.Account;
-import io.sproutmoney.sproutweb.models.PlaidItem;
-import io.sproutmoney.sproutweb.models.Transaction;
-import io.sproutmoney.sproutweb.models.User;
-import io.sproutmoney.sproutweb.services.AccountService;
-import io.sproutmoney.sproutweb.services.PlaidItemService;
-import io.sproutmoney.sproutweb.services.TransactionService;
-import io.sproutmoney.sproutweb.services.UserService;
+import io.sproutmoney.sproutweb.models.*;
+import io.sproutmoney.sproutweb.services.*;
 import org.hibernate.type.CharacterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +49,9 @@ public class UserController {
 
     @Autowired
     TransactionService transactionService;
+
+    @Autowired
+    TransactionCategoryService transactionCategoryService;
 
     private Authentication authentication;
 
